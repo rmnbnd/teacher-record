@@ -1,6 +1,7 @@
 package window;
 
 import process.Recorder;
+import process.VideoGenerator;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,9 +26,11 @@ public class RecorderWindow extends JFrame {
     private class RecordListener implements ActionListener {
 
         private Recorder recorder;
+        private VideoGenerator videoGenerator;
 
         RecordListener() throws AWTException {
             this.recorder = new Recorder();
+            this.videoGenerator = new VideoGenerator(getToolkit().getScreenSize());
         }
 
         public void actionPerformed(ActionEvent e) {
@@ -36,6 +39,8 @@ public class RecorderWindow extends JFrame {
                 recorder.startRecord();
             } else if ("Stop Record".equals(record.getText())) {
                 recorder.stopRecord();
+                record.setText("Generating video");
+                videoGenerator.generate();
             }
         }
 
