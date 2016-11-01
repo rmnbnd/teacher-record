@@ -46,6 +46,10 @@ public class Recorder extends JFrame {
         tScreenCapture.start();
     }
 
+    public void stopRecord() {
+        started = false;
+    }
+
     private void makeCompression(BufferedImage bi, File tempDir) throws IOException {
         ImageWriter imgWriter = ImageIO.getImageWritersByFormatName("jpg").next();
 
@@ -63,5 +67,4 @@ public class Recorder extends JFrame {
         imgOutStrm.close();
         imgWriter.dispose();
     }
-
 }
