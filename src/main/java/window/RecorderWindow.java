@@ -8,6 +8,7 @@ import javax.media.NoProcessorException;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import java.awt.AWTException;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -33,7 +34,7 @@ public class RecorderWindow extends JFrame {
         private VideoGenerator videoGenerator;
 
         RecordListener() throws AWTException {
-            this.recorder = new Recorder();
+            this.recorder = new Recorder(Toolkit.getDefaultToolkit().getScreenSize());
             this.videoGenerator = new VideoGenerator(getToolkit().getScreenSize());
         }
 
@@ -49,7 +50,7 @@ public class RecorderWindow extends JFrame {
                 } catch (IOException | NoProcessorException | NoDataSinkException | InterruptedException e1) {
                     e1.printStackTrace();
                 }
-                record.setText("Start Recording");
+                record.setText("Record");
             }
         }
 
