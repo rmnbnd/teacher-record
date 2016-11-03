@@ -1,75 +1,144 @@
 package process;
 
+import javax.media.ConfigureCompleteEvent;
+import javax.media.ControllerClosedEvent;
+import javax.media.ControllerErrorEvent;
 import javax.media.ControllerEvent;
 import javax.media.ControllerListener;
+import javax.media.EndOfMediaEvent;
+import javax.media.PrefetchCompleteEvent;
 import javax.media.Processor;
+import javax.media.RealizeCompleteEvent;
 
 class StateHelper implements ControllerListener {
 
     private Processor processor = null;
-    private boolean failed = false;
     private boolean configured = false;
     private boolean realized = false;
+    private boolean prefetched = false;
+    private boolean eom = false;
+    private boolean failed = false;
     private boolean closed = false;
 
-    StateHelper(Processor p) {
+    public StateHelper(Processor p) {
         processor = p;
         processor.addControllerListener(this);
     }
 
-    @Override
-    public void controllerUpdate(ControllerEvent controllerEvent) {
-
+    public void turnOffRecording() {
+        eom = true;
     }
 
-    boolean configure(int timeOutMillis) throws InterruptedException {
+    public boolean configure(int timeOutMillis) {
         long startTime = System.currentTimeMillis();
         synchronized (this) {
             processor.configure();
 
             while (!configured && !failed) {
-                wait(timeOutMillis);
-                if (System.currentTimeMillis() - startTime > timeOutMillis) {
-                    break;
+                try {
+                    wait(timeOutMillis);
+                } catch (InterruptedException ie) {
                 }
+                if (System.currentTimeMillis() - startTime > timeOutMillis)
+                    break;
             }
 
         }
         return configured;
     }
 
-    boolean waitToEndOfMedia(int timeOutMillis) throws InterruptedException {
-        boolean eom = false;
-        synchronized (this) {
-            while (!eom && !failed) {
-                wait(timeOutMillis);
-            }
-        }
-        return eom && !failed;
-    }
-
-    boolean realize(int timeOutMillis) throws InterruptedException {
+    public boolean realize(int timeOutMillis) {
         long startTime = System.currentTimeMillis();
         synchronized (this) {
             processor.realize();
             while (!realized && !failed) {
-                wait(timeOutMillis);
-                if (System.currentTimeMillis() - startTime > timeOutMillis) {
-                    break;
+                try {
+                    wait(timeOutMillis);
+                } catch (InterruptedException ie) {
                 }
+                if (System.currentTimeMillis() - startTime > timeOutMillis)
+                    break;
             }
         }
         return realized;
     }
 
-    void close() throws InterruptedException {
+    public boolean prefetch(int timeOutMillis) {
+        long startTime = System.currentTimeMillis();
+        synchronized (this) {
+            processor.prefetch();
+            while (!prefetched && !failed) {
+                try {
+                    wait(timeOutMillis);
+                } catch (InterruptedException ie) {
+                }
+                if (System.currentTimeMillis() - startTime > timeOutMillis)
+                    break;
+            }
+        }
+        return prefetched && !failed;
+    }
+
+    public boolean waitToEndOfMedia(int timeOutMillis) {
+        long startTime = System.currentTimeMillis();
+        eom = false;
+        synchronized (this) {
+            while (!eom && !failed) {
+                try {
+                    wait(timeOutMillis);
+                } catch (InterruptedException ie) {
+                }
+            }
+        }
+        return eom && !failed;
+    }
+
+    public boolean waitToEndOfMedia(int timeOutMillis, boolean isForMerge) {
+        long startTime = System.currentTimeMillis();
+        eom = false;
+        synchronized (this) {
+            while (!eom && !failed) {
+                try {
+                    wait(timeOutMillis);
+                } catch (InterruptedException ie) {
+                }
+                if (System.currentTimeMillis() - startTime > timeOutMillis)
+                    break;
+            }
+        }
+        return eom && !failed;
+    }
+
+    public void close() {
         synchronized (this) {
             processor.close();
             while (!closed) {
-                wait(100);
+                try {
+                    wait(100);
+                } catch (InterruptedException ie) {
+                }
             }
         }
         processor.removeControllerListener(this);
+    }
+
+    public synchronized void controllerUpdate(ControllerEvent ce) {
+        if (ce instanceof RealizeCompleteEvent) {
+            realized = true;
+        } else if (ce instanceof ConfigureCompleteEvent) {
+            configured = true;
+        } else if (ce instanceof PrefetchCompleteEvent) {
+            prefetched = true;
+        } else if (ce instanceof EndOfMediaEvent) {
+            eom = true;
+        } else if (ce instanceof ControllerErrorEvent) {
+            failed = true;
+        } else if (ce instanceof ControllerClosedEvent) {
+            closed = true;
+        } else {
+            return;
+        }
+        notifyAll();
     }
 
 

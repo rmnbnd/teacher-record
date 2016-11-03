@@ -49,6 +49,7 @@ public class RecorderWindow extends JFrame {
                 } catch (IOException | NoProcessorException | NoDataSinkException | InterruptedException e1) {
                     e1.printStackTrace();
                 }
+                record.setText("Start Recording");
             }
         }
 
