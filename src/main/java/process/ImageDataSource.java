@@ -1,6 +1,7 @@
 package process;
 
 import javax.media.Time;
+import javax.media.protocol.ContentDescriptor;
 import javax.media.protocol.PullBufferDataSource;
 import javax.media.protocol.PullBufferStream;
 import java.io.IOException;
@@ -17,12 +18,12 @@ class ImageDataSource extends PullBufferDataSource {
 
     @Override
     public PullBufferStream[] getStreams() {
-        return new PullBufferStream[0];
+        return streams;
     }
 
     @Override
     public String getContentType() {
-        return null;
+        return ContentDescriptor.RAW;
     }
 
     @Override
@@ -57,6 +58,6 @@ class ImageDataSource extends PullBufferDataSource {
 
     @Override
     public Time getDuration() {
-        return null;
+        return DURATION_UNKNOWN;
     }
 }
