@@ -13,4 +13,6 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     compile group: 'javax.media', name: 'jmf', version: '2.1.1e'
+    compile 'com.google.apis:google-api-services-youtube:v3-rev179-1.22.0'
+    compile 'com.google.oauth-client:google-oauth-client-jetty:1.18.0-rc'
 }

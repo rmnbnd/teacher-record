@@ -1,4 +1,4 @@
-package process;
+package process.record;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;

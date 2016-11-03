@@ -1,4 +1,4 @@
-package process;
+package process.record;
 
 import javax.media.Buffer;
 import javax.media.Format;

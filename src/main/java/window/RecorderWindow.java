@@ -1,10 +1,12 @@
 package window;
 
-import process.Recorder;
-import process.VideoGenerator;
+import process.record.Recorder;
+import process.record.VideoGenerator;
+import process.upload.YoutubeVideoUpload;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import java.awt.AWTException;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -13,12 +15,23 @@ import java.awt.event.ActionListener;
 public class RecorderWindow extends JFrame {
 
     private JButton record;
+    private JButton upload;
 
     public RecorderWindow() throws AWTException {
+        // Add main panel
+        JPanel panel = new JPanel();
+
         // Add record button
         record = new JButton("Record");
         record.addActionListener(new RecordListener());
-        this.getContentPane().add(record);
+        panel.add(record);
+
+        // Add upload button
+        upload = new JButton("Upload");
+        upload.addActionListener(new UploadListener());
+        panel.add(upload);
+
+        this.getContentPane().add(panel);
 
         // Setup window
         this.pack();
@@ -47,6 +60,21 @@ public class RecorderWindow extends JFrame {
 
                 record.setText("Record");
             }
+        }
+
+    }
+
+    private class UploadListener implements ActionListener {
+
+        private YoutubeVideoUpload youtubeVideoUpload;
+
+        UploadListener() {
+            this.youtubeVideoUpload = new YoutubeVideoUpload();
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            youtubeVideoUpload.upload();
         }
 
     }

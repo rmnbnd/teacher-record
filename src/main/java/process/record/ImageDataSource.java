@@ -1,4 +1,4 @@
-package process;
+package process.record;
 
 import javax.media.Time;
 import javax.media.protocol.ContentDescriptor;
