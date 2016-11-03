@@ -3,15 +3,12 @@ package window;
 import process.Recorder;
 import process.VideoGenerator;
 
-import javax.media.NoDataSinkException;
-import javax.media.NoProcessorException;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import java.awt.AWTException;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 public class RecorderWindow extends JFrame {
 
@@ -44,12 +41,10 @@ public class RecorderWindow extends JFrame {
                 recorder.startRecord();
             } else if ("Stop Record".equals(record.getText())) {
                 recorder.stopRecord();
+
                 record.setText("Generating video");
-                try {
-                    videoGenerator.generate();
-                } catch (IOException | NoProcessorException | NoDataSinkException | InterruptedException e1) {
-                    e1.printStackTrace();
-                }
+                videoGenerator.generate();
+
                 record.setText("Record");
             }
         }
