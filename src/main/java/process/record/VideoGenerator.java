@@ -54,7 +54,7 @@ public class VideoGenerator implements ControllerListener, DataSinkListener {
     }
 
     private void makeVideo(List<String> imageFiles) {
-        String videoFileName = System.currentTimeMillis() + ".mov";
+        String videoFileName = "./records" + System.currentTimeMillis() + ".mov";
         MediaLocator oml = createMediaLocator(videoFileName);
 
         ImageDataSource ids = new ImageDataSource(width, height, FRAME_RATE, imageFiles);

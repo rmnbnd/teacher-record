@@ -2,6 +2,7 @@ package window;
 
 import process.record.Recorder;
 import process.record.VideoGenerator;
+import process.upload.YoutubeVideoUpload;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -25,10 +26,12 @@ public class RecorderWindow extends JFrame {
 
     private Recorder recorder;
     private VideoGenerator videoGenerator;
+    private YoutubeVideoUpload youtubeVideoUpload;
 
     public RecorderWindow() throws AWTException {
         this.recorder = new Recorder(getDefaultToolkit().getScreenSize());
         this.videoGenerator = new VideoGenerator(getDefaultToolkit().getScreenSize());
+        this.youtubeVideoUpload = new YoutubeVideoUpload();
 
 
         // Add main panel
@@ -70,17 +73,18 @@ public class RecorderWindow extends JFrame {
     private void renderRecordsList(JPanel panel, GridBagConstraints c) {
         File f = new File("records");
         File[] records = f.listFiles();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridwidth = 2;
-        c.gridx = 0;
         if (records == null) {
             return;
         }
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridwidth = 2;
+        c.gridx = 0;
         for (File record : records) {
             c.gridy = ++c.gridy;
 
             JButton button = new JButton("Upload");
-
+            button.setActionCommand(record.getName());
+            button.addActionListener(new UploadListener());
             JLabel label = new JLabel(record.getName());
             JPanel jPanel = new JPanel();
             jPanel.add(label);
@@ -113,4 +117,12 @@ public class RecorderWindow extends JFrame {
 
     }
 
+    private class UploadListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            youtubeVideoUpload.upload(e.getActionCommand());
+        }
+
+    }
 }

@@ -11,6 +11,8 @@ import com.google.api.services.youtube.model.VideoSnippet;
 import com.google.api.services.youtube.model.VideoStatus;
 import com.google.common.collect.Lists;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -18,22 +20,19 @@ import java.util.List;
 
 public class YoutubeVideoUpload {
 
-    private static YouTube youtube;
-
     private static final String VIDEO_FILE_FORMAT = "video/*";
 
-    private static final String SAMPLE_VIDEO_FILENAME = "sample-video.mp4";
-
-    public void upload() {
+    public void upload(String videoFileName) {
 
         List<String> scopes = Lists.newArrayList("https://www.googleapis.com/auth/youtube.upload");
 
         try {
             Credential credential = Auth.authorize(scopes, "uploadvideo");
 
-            youtube = new YouTube.Builder(Auth.HTTP_TRANSPORT, Auth.JSON_FACTORY, credential).setApplicationName("youtube-cmdline-uploadvideo-sample").build();
+            YouTube youtube = new YouTube.Builder(Auth.HTTP_TRANSPORT, Auth.JSON_FACTORY, credential)
+                    .setApplicationName("youtube-cmdline-uploadvideo-sample").build();
 
-            System.out.println("Uploading: " + SAMPLE_VIDEO_FILENAME);
+            System.out.println("Uploading: " + videoFileName);
 
             Video videoObjectDefiningMetadata = new Video();
             VideoStatus status = new VideoStatus();
@@ -54,7 +53,8 @@ public class YoutubeVideoUpload {
             snippet.setTags(tags);
 
             videoObjectDefiningMetadata.setSnippet(snippet);
-            InputStreamContent mediaContent = new InputStreamContent(VIDEO_FILE_FORMAT, YoutubeVideoUpload.class.getResourceAsStream("/sample-video.mp4"));
+            File file = new File("./records/" + videoFileName);
+            InputStreamContent mediaContent = new InputStreamContent(VIDEO_FILE_FORMAT, new FileInputStream(file));
             YouTube.Videos.Insert videoInsert = youtube.videos().insert("snippet,statistics,status", videoObjectDefiningMetadata, mediaContent);
             MediaHttpUploader uploader = videoInsert.getMediaHttpUploader();
             uploader.setDirectUploadEnabled(false);
