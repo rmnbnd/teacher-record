@@ -8,27 +8,43 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.AWTException;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import static java.awt.Toolkit.getDefaultToolkit;
+
 public class RecorderWindow extends JFrame {
 
-    private JButton record;
+    private JButton startRecord;
+    private JButton stopRecord;
     private JButton upload;
 
+    private Recorder recorder;
+    private VideoGenerator videoGenerator;
+
     public RecorderWindow() throws AWTException {
+        this.recorder = new Recorder(getDefaultToolkit().getScreenSize());
+        this.videoGenerator = new VideoGenerator(getDefaultToolkit().getScreenSize());
+
+
         // Add main panel
         JPanel panel = new JPanel();
 
-        // Add record button
-        record = new JButton("Record");
-        record.addActionListener(new RecordListener());
-        panel.add(record);
+        // Add startRecord button
+        startRecord = new JButton("Start Record");
+        startRecord.addActionListener(new StartRecordListener());
+        panel.add(startRecord);
+
+        // Add stopRecord button
+        stopRecord = new JButton("Stop Record");
+        stopRecord.addActionListener(new StopRecordListener());
+        stopRecord.setEnabled(false);
+        panel.add(stopRecord);
 
         // Add upload button
         upload = new JButton("Upload");
         upload.addActionListener(new UploadListener());
+        upload.setEnabled(false);
         panel.add(upload);
 
         this.getContentPane().add(panel);
@@ -38,28 +54,26 @@ public class RecorderWindow extends JFrame {
         this.setVisible(true);
     }
 
-    private class RecordListener implements ActionListener {
-
-        private Recorder recorder;
-        private VideoGenerator videoGenerator;
-
-        RecordListener() throws AWTException {
-            this.recorder = new Recorder(Toolkit.getDefaultToolkit().getScreenSize());
-            this.videoGenerator = new VideoGenerator(getToolkit().getScreenSize());
-        }
+    private class StartRecordListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
-            if ("Record".equals(record.getText())) {
-                record.setText("Stop Record");
-                recorder.startRecord();
-            } else if ("Stop Record".equals(record.getText())) {
-                recorder.stopRecord();
+            startRecord.setEnabled(false);
+            stopRecord.setEnabled(true);
 
-                record.setText("Generating video");
-                videoGenerator.generate();
+            recorder.startRecord();
+        }
 
-                record.setText("Record");
-            }
+    }
+
+    private class StopRecordListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            recorder.stopRecord();
+            videoGenerator.generate();
+
+            stopRecord.setEnabled(false);
+            startRecord.setEnabled(true);
         }
 
     }

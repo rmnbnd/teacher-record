@@ -49,6 +49,8 @@ public class VideoGenerator implements ControllerListener, DataSinkListener {
 
     public void generate() {
         makeVideo(readImageFiles());
+
+        deleteImageFiles();
     }
 
     private void makeVideo(List<String> imageFiles) {
@@ -158,6 +160,17 @@ public class VideoGenerator implements ControllerListener, DataSinkListener {
                 .map(File::getAbsolutePath)
                 .sorted()
                 .collect(Collectors.toList());
+    }
+
+    private void deleteImageFiles() {
+        File f = new File(STORE);
+        File[] files = f.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (File file : files) {
+            file.delete();
+        }
     }
 
     private MediaLocator createMediaLocator(String url) {
