@@ -70,21 +70,22 @@ public class RecorderWindow extends JFrame {
     private void renderRecordsList(JPanel panel, GridBagConstraints c) {
         File f = new File("records");
         File[] records = f.listFiles();
-        if (records != null) {
-            for (File record : records) {
-                c.fill = GridBagConstraints.HORIZONTAL;
-                c.gridwidth = 2;
-                c.gridx = 0;
-                c.gridy = ++c.gridy;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridwidth = 2;
+        c.gridx = 0;
+        if (records == null) {
+            return;
+        }
+        for (File record : records) {
+            c.gridy = ++c.gridy;
 
-                JButton button = new JButton("Upload");
+            JButton button = new JButton("Upload");
 
-                JLabel label = new JLabel(record.getName());
-                JPanel jPanel = new JPanel();
-                jPanel.add(label);
-                jPanel.add(button);
-                panel.add(jPanel, c);
-            }
+            JLabel label = new JLabel(record.getName());
+            JPanel jPanel = new JPanel();
+            jPanel.add(label);
+            jPanel.add(button);
+            panel.add(jPanel, c);
         }
     }
 
