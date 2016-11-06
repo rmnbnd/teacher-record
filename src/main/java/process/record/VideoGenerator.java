@@ -47,14 +47,17 @@ public class VideoGenerator implements ControllerListener, DataSinkListener {
         this.height = (int) dimension.getHeight();
     }
 
-    public void generate() {
-        makeVideo(readImageFiles());
+    public String generate() {
+        String videoFileName = makeVideo(readImageFiles());
 
         deleteImageFiles();
+
+        return videoFileName;
     }
 
-    private void makeVideo(List<String> imageFiles) {
-        String videoFileName = "./records" + System.currentTimeMillis() + ".mov";
+    private String makeVideo(List<String> imageFiles) {
+        String fileName = System.currentTimeMillis() + ".mov";
+        String videoFileName = "./records/" + fileName;
         MediaLocator oml = createMediaLocator(videoFileName);
 
         ImageDataSource ids = new ImageDataSource(width, height, FRAME_RATE, imageFiles);
@@ -63,13 +66,13 @@ public class VideoGenerator implements ControllerListener, DataSinkListener {
             processor = Manager.createProcessor(ids);
         } catch (Exception e) {
             System.err.println("Cannot create a processor from the data source.");
-            return;
+            return null;
         }
         processor.addControllerListener(this);
         processor.configure();
         if (!waitForState(processor, Processor.Configured)) {
             System.err.println("Failed to configure the processor.");
-            return;
+            return null;
         }
         processor.setContentDescriptor(new ContentDescriptor(FileTypeDescriptor.QUICKTIME));
 
@@ -77,20 +80,20 @@ public class VideoGenerator implements ControllerListener, DataSinkListener {
         Format f[] = tcs[0].getSupportedFormats();
         if (f == null || f.length <= 0) {
             System.err.println("The mux does not support the input format: " + tcs[0].getFormat());
-            return;
+            return null;
         }
         tcs[0].setFormat(f[0]);
 
         processor.realize();
         if (!waitForState(processor, Processor.Realized)) {
             System.err.println("Failed to realize the processor.");
-            return;
+            return null;
         }
 
         DataSink dsink = createDataSink(processor, oml);
         if (dsink == null) {
             System.err.println("Failed to create a DataSink for the given output MediaLocator.");
-            return;
+            return null;
         }
         dsink.addDataSinkListener(this);
         fileDone = false;
@@ -100,7 +103,7 @@ public class VideoGenerator implements ControllerListener, DataSinkListener {
             dsink.start();
         } catch (IOException e) {
             System.err.println("IO error during processing");
-            return;
+            return null;
         }
 
         waitForFileDone();
@@ -112,6 +115,7 @@ public class VideoGenerator implements ControllerListener, DataSinkListener {
         }
 
         processor.removeControllerListener(this);
+        return fileName;
     }
 
     @Override
@@ -171,6 +175,7 @@ public class VideoGenerator implements ControllerListener, DataSinkListener {
         for (File file : files) {
             file.delete();
         }
+        f.delete();
     }
 
     private MediaLocator createMediaLocator(String url) {

@@ -7,6 +7,7 @@ import process.upload.YoutubeVideoUpload;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import java.awt.AWTException;
@@ -23,6 +24,8 @@ public class RecorderWindow extends JFrame {
 
     private JButton startRecord;
     private JButton stopRecord;
+    private JPanel panel;
+    private JScrollPane pane;
 
     private Recorder recorder;
     private VideoGenerator videoGenerator;
@@ -35,7 +38,7 @@ public class RecorderWindow extends JFrame {
 
 
         // Add main panel
-        JPanel panel = new JPanel(new GridBagLayout());
+        panel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 
         // Add startRecord button
@@ -56,10 +59,10 @@ public class RecorderWindow extends JFrame {
         panel.add(stopRecord, c);
 
         // Add records list
-        renderRecordsList(panel, c);
+        renderRecordsList(panel);
 
         // Add scroll page for all content
-        JScrollPane pane = new JScrollPane();
+        pane = new JScrollPane();
         pane.setSize(new Dimension(200, 200));
         pane.setViewportView(panel);
 
@@ -70,25 +73,18 @@ public class RecorderWindow extends JFrame {
         this.setVisible(true);
     }
 
-    private void renderRecordsList(JPanel panel, GridBagConstraints c) {
+    private void renderRecordsList(JPanel panel) {
         File f = new File("records");
         File[] records = f.listFiles();
         if (records == null) {
             return;
         }
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridwidth = 2;
-        c.gridx = 0;
+        GridBagConstraints c = getGridBagConstraintsForRecordsView();
+        c.gridy = 1;
         for (File record : records) {
             c.gridy = ++c.gridy;
 
-            JButton button = new JButton("Upload");
-            button.setActionCommand(record.getName());
-            button.addActionListener(new UploadListener());
-            JLabel label = new JLabel(record.getName());
-            JPanel jPanel = new JPanel();
-            jPanel.add(label);
-            jPanel.add(button);
+            JPanel jPanel = getRecordPanel(record.getName());
             panel.add(jPanel, c);
         }
     }
@@ -109,12 +105,42 @@ public class RecorderWindow extends JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             recorder.stopRecord();
-            videoGenerator.generate();
+            String videoFileName = videoGenerator.generate();
 
             stopRecord.setEnabled(false);
             startRecord.setEnabled(true);
+
+            if (videoFileName == null) {
+                return;
+            }
+            GridBagConstraints c = getGridBagConstraintsForRecordsView();
+            JPanel jPanel = getRecordPanel(videoFileName);
+            panel.add(jPanel, c);
+            pane.updateUI();
+
+            JButton source = (JButton) e.getSource();
+            JOptionPane.showMessageDialog(source.getParent(), "Video generated.");
         }
 
+    }
+
+    private GridBagConstraints getGridBagConstraintsForRecordsView() {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridwidth = 2;
+        c.gridx = 0;
+        return c;
+    }
+
+    private JPanel getRecordPanel(String videoFileName) {
+        JButton button = new JButton("Upload");
+        button.setActionCommand(videoFileName);
+        button.addActionListener(new UploadListener());
+        JLabel label = new JLabel(videoFileName);
+        JPanel jPanel = new JPanel();
+        jPanel.add(label);
+        jPanel.add(button);
+        return jPanel;
     }
 
     private class UploadListener implements ActionListener {
