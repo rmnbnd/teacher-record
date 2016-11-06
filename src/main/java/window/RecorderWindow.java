@@ -36,7 +36,6 @@ public class RecorderWindow extends JFrame {
         this.videoGenerator = new VideoGenerator(getDefaultToolkit().getScreenSize());
         this.youtubeVideoUpload = new YoutubeVideoUpload();
 
-
         // Add main panel
         panel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
@@ -89,6 +88,33 @@ public class RecorderWindow extends JFrame {
         }
     }
 
+    private GridBagConstraints getGridBagConstraintsForRecordsView() {
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridwidth = 2;
+        c.gridx = 0;
+        return c;
+    }
+
+    private JPanel getRecordPanel(String videoFileName) {
+        JPanel jPanel = new JPanel();
+
+        JButton upload = new JButton("Upload");
+        upload.setActionCommand(videoFileName);
+        upload.addActionListener(new UploadListener());
+
+        JButton delete = new JButton("Delete");
+        delete.setActionCommand(videoFileName);
+        delete.addActionListener(new DeleteRecordListener(jPanel));
+
+        JLabel label = new JLabel(videoFileName);
+
+        jPanel.add(label);
+        jPanel.add(upload);
+        jPanel.add(delete);
+        return jPanel;
+    }
+
     private class StartRecordListener implements ActionListener {
 
         public void actionPerformed(ActionEvent e) {
@@ -124,25 +150,6 @@ public class RecorderWindow extends JFrame {
 
     }
 
-    private GridBagConstraints getGridBagConstraintsForRecordsView() {
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridwidth = 2;
-        c.gridx = 0;
-        return c;
-    }
-
-    private JPanel getRecordPanel(String videoFileName) {
-        JButton button = new JButton("Upload");
-        button.setActionCommand(videoFileName);
-        button.addActionListener(new UploadListener());
-        JLabel label = new JLabel(videoFileName);
-        JPanel jPanel = new JPanel();
-        jPanel.add(label);
-        jPanel.add(button);
-        return jPanel;
-    }
-
     private class UploadListener implements ActionListener {
 
         @Override
@@ -151,4 +158,26 @@ public class RecorderWindow extends JFrame {
         }
 
     }
+
+    private class DeleteRecordListener implements ActionListener {
+
+        private JPanel jPanel;
+
+        DeleteRecordListener(JPanel jPanel) {
+            this.jPanel = jPanel;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            File file = new File("./records/" + e.getActionCommand());
+            if (!file.exists()) {
+                return;
+            }
+            file.delete();
+
+            panel.remove(jPanel);
+            panel.updateUI();
+        }
+    }
+
 }

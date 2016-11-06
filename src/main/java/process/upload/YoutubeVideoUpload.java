@@ -11,6 +11,7 @@ import com.google.api.services.youtube.model.VideoSnippet;
 import com.google.api.services.youtube.model.VideoStatus;
 import com.google.common.collect.Lists;
 
+import javax.swing.JOptionPane;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -72,7 +73,7 @@ public class YoutubeVideoUpload {
                         System.out.println("Upload percentage: " + uploader1.getProgress());
                         break;
                     case MEDIA_COMPLETE:
-                        System.out.println("Upload Completed!");
+                        JOptionPane.showMessageDialog(null, "Upload Completed!");
                         break;
                     case NOT_STARTED:
                         System.out.println("Upload Not Started!");
