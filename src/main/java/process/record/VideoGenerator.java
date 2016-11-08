@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 public class VideoGenerator implements ControllerListener, DataSinkListener {
 
     private static final String STORE = "tmp";
-    private static final int FRAME_RATE = 2;
+    private static final int FRAME_RATE = 9;
 
     private boolean fileDone = false;
     private boolean fileSuccess = true;
@@ -42,6 +42,8 @@ public class VideoGenerator implements ControllerListener, DataSinkListener {
     private int width;
     private int height;
 
+    private Merge mergeProcess = new Merge();
+
     public VideoGenerator(Dimension dimension) {
         this.width = (int) dimension.getWidth();
         this.height = (int) dimension.getHeight();
@@ -49,9 +51,8 @@ public class VideoGenerator implements ControllerListener, DataSinkListener {
 
     public String generate() {
         String videoFileName = makeVideo(readImageFiles());
-
+        mergeProcess.merge(videoFileName, "RecordAudio.wav");
         deleteImageFiles();
-
         return videoFileName;
     }
 

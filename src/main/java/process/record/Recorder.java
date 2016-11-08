@@ -12,16 +12,19 @@ import java.io.File;
 public class Recorder extends JFrame {
 
     private static final String STORE = "tmp";
-    private static int CAPTURE_INTERVAL = 50;
+    private static int CAPTURE_INTERVAL = 1;
 
     private static boolean record = false;
 
     private int width;
     private int height;
 
+    private SoundRecorder soundRecorder;
+
     public Recorder(Dimension dimension) throws AWTException {
         this.width = (int) dimension.getWidth();
         this.height = (int) dimension.getHeight();
+        this.soundRecorder = new SoundRecorder();
     }
 
     public void startRecord() {
@@ -47,10 +50,19 @@ public class Recorder extends JFrame {
                 }
             }
         };
+
+        Thread audioRecordThread = new Thread() {
+            public void run() {
+                soundRecorder.start();
+            }
+        };
+
+        audioRecordThread.start();
         recordThread.start();
     }
 
     public void stopRecord() {
+        soundRecorder.finish();
         record = false;
     }
 
