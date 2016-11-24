@@ -32,6 +32,8 @@ public class VideoGenerator implements ControllerListener, DataSinkListener {
 
     private static final String STORE = "tmp";
     private static final int FRAME_RATE = 9;
+    private static final String TEMP_VIDEO = "tempVideo";
+    private static final String RECORD_AUDIO_WAV = "RecordAudio.wav";
 
     private boolean fileDone = false;
     private boolean fileSuccess = true;
@@ -51,14 +53,16 @@ public class VideoGenerator implements ControllerListener, DataSinkListener {
 
     public String generate() {
         String videoFileName = makeVideo(readImageFiles());
-        mergeProcess.merge(videoFileName, "RecordAudio.wav");
-        deleteImageFiles();
+        mergeProcess.merge(videoFileName, "file:./" + RECORD_AUDIO_WAV);
+        deleteTempFiles(STORE);
+        deleteTempFiles(TEMP_VIDEO);
+        deleteTempFiles(RECORD_AUDIO_WAV);
         return videoFileName;
     }
 
     private String makeVideo(List<String> imageFiles) {
         String fileName = System.currentTimeMillis() + ".mov";
-        String videoFileName = "./records/" + fileName;
+        String videoFileName = "./" + TEMP_VIDEO + "/" + fileName;
         MediaLocator oml = createMediaLocator(videoFileName);
 
         ImageDataSource ids = new ImageDataSource(width, height, FRAME_RATE, imageFiles);
@@ -167,10 +171,11 @@ public class VideoGenerator implements ControllerListener, DataSinkListener {
                 .collect(Collectors.toList());
     }
 
-    private void deleteImageFiles() {
-        File f = new File(STORE);
+    private void deleteTempFiles(String folder) {
+        File f = new File(folder);
         File[] files = f.listFiles();
         if (files == null) {
+            f.delete();
             return;
         }
         for (File file : files) {

@@ -38,12 +38,12 @@ class Merge implements ControllerListener, DataSinkListener {
     private AudioFormat audioFormat = null;
 
     void merge(String videoFileName, String audioFileName) {
-        sourcesURLs.add(videoFileName);
+        sourcesURLs.add("file:./tempVideo/" + videoFileName);
         sourcesURLs.add(audioFileName);
-        doMerge();
+        doMerge(videoFileName);
     }
 
-    private void doMerge() {
+    private void doMerge(String videoFileName) {
         Processor[] processors = new Processor[sourcesURLs.size()];
         DataSource[] dataOutputs = new DataSource[sourcesURLs.size()];
 
@@ -87,9 +87,8 @@ class Merge implements ControllerListener, DataSinkListener {
         }
 
         try {
-            MediaLocator outputLocator = new MediaLocator(outputFile);
-            outputDataSink = Manager.createDataSink(outputDataSource,
-                    outputLocator);
+            MediaLocator outputLocator = new MediaLocator("file:./records/" + videoFileName);
+            outputDataSink = Manager.createDataSink(outputDataSource, outputLocator);
             outputDataSink.open();
         } catch (Exception exce) {
             System.err.println("Failed to create output DataSink: " + exce);
